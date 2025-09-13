@@ -5,7 +5,7 @@ set -e
 TMP_SCRIPT=$(mktemp)
 
 # download main installer script from GitHub
-curl -fsSL https://raw.githubusercontent.com/Caleb-ne1/proxmox-lxc-installer/main/casaos-installer.sh -o "$TMP_SCRIPT"
+curl -fsSL https://raw.githubusercontent.com/Caleb-ne1/proxmox-casaos-lxc-installer.git/main/casaos-installer.sh -o "$TMP_SCRIPT"
 
 # make it executable
 chmod +x "$TMP_SCRIPT"

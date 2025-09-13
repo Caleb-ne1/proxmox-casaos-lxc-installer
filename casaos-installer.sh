@@ -22,7 +22,7 @@ echo -e "\033[1;36m===================================\033[0m"
 
 # author banner
 echo -e "\033[1;33m🚀 Created by: @Caleb Kibet\033[0m"
-echo -e "\033[1;36m💻 GitHub: https://github.com/Caleb-ne1/proxmox-lxc-installer.git\033[0m"
+echo -e "\033[1;36m💻 GitHub: https://github.com/Caleb-ne1/proxmox-casaos-lxc-installer.git\033[0m"
 echo ""
 
 # select template storage
@@ -73,14 +73,23 @@ if [ $? -ne 0 ]; then
 fi
 success "Container storage selected: $CT_STORAGE"
 
+# auto-detect network settings
+SUBNET=$(ip -o -f inet addr show vmbr0 | awk '{print $4}')
+GATEWAY=$(ip route show default | awk '/default/ {print $3}')
+
+FREE_IP=$(fping -a -g $SUBNET 2>/dev/null | awk -F. '{print $1"."$2"."$3"."$4+1; exit}')"/${SUBNET#*/}"
+
+# get next available VMID
+NEXTVMID=$(pvesh get /cluster/nextid)
+
 # collect other variables
-VMID=$(whiptail --inputbox "Enter VMID (must be unique)" 8 60 105 3>&1 1>&2 2>&3)
+VMID=$(whiptail --inputbox "Enter VMID (must be unique)" 8 60 "$NEXTVMID" 3>&1 1>&2 2>&3)
 HOSTNAME=$(whiptail --inputbox "Enter Hostname" 8 60 casaos 3>&1 1>&2 2>&3)
 PASSWORD=$(whiptail --passwordbox "Enter Root Password" 8 60 3>&1 1>&2 2>&3)
 MEMORY=$(whiptail --inputbox "Enter Memory (MB)" 8 60 2048 3>&1 1>&2 2>&3)
-CORES=$(whiptail --inputbox "Enter CPU Cores" 8 60 2 3>&1 1>&2 2>&3)
-IP=$(whiptail --inputbox "Enter IP address (CIDR)" 8 60 X.X.X.X/24 3>&1 1>&2 2>&3)
-GW=$(whiptail --inputbox "Enter Gateway" 8 60 X.X.X.X 3>&1 1>&2 2>&3)
+CORES=$(whiptail --inputbox "Enter CPU Cores" 8 60 "$(nproc)" 3>&1 1>&2 2>&3)
+IP=$(whiptail --inputbox "Enter IP address (CIDR)" 8 60 "$FREE_IP" 3>&1 1>&2 2>&3)
+GW=$(whiptail --inputbox "Enter Gateway" 8 60 "$GATEWAY" 3>&1 1>&2 2>&3)
 
 # fixed rootfs size
 DISK="10G"
@@ -121,11 +130,11 @@ STORAGE_TYPE=$(pvesh get /nodes/localhost/storage --output-format=json \
     | jq -r ".[] | select(.storage==\"$CT_STORAGE\") | .type")
 
 if [ "$STORAGE_TYPE" = "lvmthin" ] || [ "$STORAGE_TYPE" = "lvm" ]; then
-    ROOTFS_PARAM="$CT_STORAGE:$DISK_NUMBER"  # number only in GB
+    ROOTFS_PARAM="$CT_STORAGE:$DISK_NUMBER"  
 elif [ "$STORAGE_TYPE" = "btrfs" ]; then
     ROOTFS_PARAM="$CT_STORAGE:subvol=vm-$VMID-disk-0,size=$DISK"
 elif [ "$STORAGE_TYPE" = "dir" ] || [ "$STORAGE_TYPE" = "nfs" ] || [ "$STORAGE_TYPE" = "cifs" ]; then
-    ROOTFS_PARAM="$CT_STORAGE:$DISK"   # dir storage, include G, e.g., "8G"
+    ROOTFS_PARAM="$CT_STORAGE:$DISK"   
 elif [ "$STORAGE_TYPE" = "zfspool" ]; then
     ROOTFS_PARAM="$CT_STORAGE:size=$DISK"
 else
