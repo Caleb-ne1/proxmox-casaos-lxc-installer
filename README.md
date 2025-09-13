@@ -18,7 +18,7 @@
 
 ```bash
 git clone https://github.com/Caleb-ne1/proxmox-lxc-installer.git
-cd proxmox-lxc-installer
+cd proxmox-casaos-lxc-installer
 bash casaos-installer.sh
 ```
 

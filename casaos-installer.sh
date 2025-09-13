@@ -168,7 +168,7 @@ pct exec $VMID -- bash -c "apt-get update && apt-get install -y curl wget git su
 success "CasaOS installed."
 
 # final message
-whiptail --msgbox "CasaOS container created!\nHostname: $HOSTNAME\nVMID: $VMID\nIP: $IP\nRoot will auto-login at console." 12 60
+whiptail --msgbox "CasaOS container created!\nHostname: $HOSTNAME\nVMID: $VMID\nIP: $IP\n" 12 60
 echo -e "\033[1;32m[✔] CasaOS container setup complete.\033[0m"
 echo -e "\033[1;34mAccess CasaOS at: http://$IP\033[0m"
 
