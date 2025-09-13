@@ -25,7 +25,7 @@ bash casaos-installer.sh
 ### Option 2: One-liner installation
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/Caleb-ne1/proxmox-lxc-installer/main/install.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Caleb-ne1/proxmox-casaos-lxc-installer/main/install.sh)"
 ```
 
 This will download and run the installer script.
